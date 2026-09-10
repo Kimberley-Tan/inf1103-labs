@@ -11,3 +11,6 @@ while True:
     elif int(stock)<0:
         print("Stock quantity is invalid please only enter positive numbers.")
         continue
+    else:
+        inventory += int(stock)
+        print(inventory)
