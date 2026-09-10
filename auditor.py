@@ -4,3 +4,5 @@ while True:
     stock = input("Enter Stock Quantity:")
     if stock == "Quit" or stock == "quit":
         break
+    if stock.isdigit() == False:
+        print("Stock quantity is invalid please only enter numbers.")
