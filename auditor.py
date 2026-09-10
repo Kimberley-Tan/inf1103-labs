@@ -13,4 +13,6 @@ while True:
         continue
     else:
         inventory += int(stock)
-        print(inventory)
+        if inventory>500:
+            print("ALERT Overstock detected, inventory has exceeded 500 items.")
+            break
