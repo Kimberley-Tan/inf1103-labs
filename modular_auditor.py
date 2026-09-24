@@ -24,7 +24,8 @@ def get_valid_input():
             return int(stock)
 
 
-
+def process_delivery(current_total, new_value):
+    return current_total + new_value
 
 def main():
     print("This is a Smart Inventory Auditor."
@@ -38,6 +39,12 @@ def main():
         stock = get_valid_input()
 
         if stock == "quit":
+            break
+
+        inventory = process_delivery(inventory, stock)
+
+        if inventory > 500:
+            print("ALERT Overstock detected, total inventory has exceeded 500 units.")
             break
 
 
