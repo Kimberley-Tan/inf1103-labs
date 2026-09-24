@@ -1,7 +1,9 @@
 rejected_entries = 0
+num_delivery = 0
 
 def get_valid_input():
     global rejected_entries
+    global num_delivery
     while True:
         stock = input("Enter Stock Quantity: ")
 
@@ -21,6 +23,7 @@ def get_valid_input():
             continue
 
         else:
+            num_delivery +=1
             return int(stock)
 
 def process_delivery(current_total, new_value):
@@ -28,6 +31,11 @@ def process_delivery(current_total, new_value):
 
 def calculate_tax(amount):
     return amount * 0.10
+
+def generate_report(total_units, total_delivery, failed_attempts):
+    print(f"Total Units Processed: {total_units}")
+    print(f"Number of Deliveries Done: {total_delivery}")
+    print(f"Number of Failed/Rejected Entries: {failed_attempts}")
 
 def main():
     print("This is a Smart Inventory Auditor."
@@ -41,6 +49,7 @@ def main():
         stock = get_valid_input()
 
         if stock == "quit":
+            generate_report(inventory, num_delivery, rejected_entries)
             break
 
         inventory = process_delivery(inventory, stock)
