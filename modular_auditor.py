@@ -23,9 +23,11 @@ def get_valid_input():
         else:
             return int(stock)
 
-
 def process_delivery(current_total, new_value):
     return current_total + new_value
+
+def calculate_tax(amount):
+    return amount * 0.10
 
 def main():
     print("This is a Smart Inventory Auditor."
@@ -46,6 +48,9 @@ def main():
         if inventory > 500:
             print("ALERT Overstock detected, total inventory has exceeded 500 units.")
             break
+
+        tax = calculate_tax(stock)
+        print(f"Tax for this delivery: {tax}")
 
 
 main()
