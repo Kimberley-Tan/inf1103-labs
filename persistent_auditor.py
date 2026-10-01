@@ -7,13 +7,32 @@ def load_inventory():
         file = open("inventory.txt", "r")
 
         inventory = int(file.readline().strip())
+        history_line = file.readline().strip()
+
+        transaction_history = []
+
+        if history_line:
+            history_line = history_line.strip("[]")
+
+            if history_line:
+                for value in history_line.split(","):
+                    transaction_history.append(int(value.strip()))
 
         file.close()
 
-        return inventory
+        return inventory, transaction_history
 
     except FileNotFoundError:
-        return 0
+        return 0, []
+
+
+def save_inventory(inventory, transaction_history):
+    file = open("inventory.txt", "w")
+
+    file.write(str(inventory) + "\n")
+    file.write(str(transaction_history))
+
+    file.close()
 
 
 def get_valid_input():
@@ -62,19 +81,21 @@ def main():
           "\nIt will continuously prompt for Stock Quantity."
           "\nTo exit please type \"Quit\"")
 
-    inventory = load_inventory()
+    inventory, transaction_history = load_inventory()
 
     print(f"Loaded Inventory: {inventory}")
-
-    transaction_history = []
 
     while True:
 
         stock = get_valid_input()
 
         if stock == "quit":
+            save_inventory(inventory, transaction_history)
+
             generate_report(inventory, num_delivery, rejected_entries)
             print(f"Transaction History: {transaction_history}")
+            print("Inventory successfully saved to inventory.txt")
+
             break
 
         transaction_history.append(stock)
