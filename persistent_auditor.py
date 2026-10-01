@@ -66,13 +66,18 @@ def main():
 
     print(f"Loaded Inventory: {inventory}")
 
+    transaction_history = []
+
     while True:
 
         stock = get_valid_input()
 
         if stock == "quit":
             generate_report(inventory, num_delivery, rejected_entries)
+            print(f"Transaction History: {transaction_history}")
             break
+
+        transaction_history.append(stock)
 
         inventory = process_delivery(inventory, stock)
 
