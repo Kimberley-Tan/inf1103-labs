@@ -1,8 +1,13 @@
+from product import Product
+
+
 class Inventory:
     def __init__(self):
         self.__products = []
 
     def add_product(self, product):
+        if not isinstance(product, Product):
+            raise TypeError("Inventory accepts Product subclasses only.")
         if self.search_product(product.get_product_id()) is not None:
             return False
         self.__products.append(product)

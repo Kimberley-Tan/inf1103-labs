@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
-from product import Product
+from physical_product import PhysicalProduct
+from digital_product import DigitalProduct
 from inventory import Inventory
 
 FILE_PATH = Path(__file__).with_name("inventory.json")
@@ -22,7 +23,13 @@ def load_inventory():
                 raise ValueError("Invalid inventory format")
             if isinstance(item["stock"], bool) or not isinstance(item["stock"], int):
                 raise ValueError("Stock must be an integer")
-            if not inventory.add_product(Product(item["id"], item["name"], item["price"], item["stock"])):
+            if item.get("type") == "physical":
+                product = PhysicalProduct(item["id"], item["name"], item["price"], item["stock"], item["weight"])
+            elif item.get("type") == "digital":
+                product = DigitalProduct(item["id"], item["name"], item["price"], item["stock"], item["download_size"])
+            else:
+                raise ValueError("Missing or unknown product type; each record must be physical or digital")
+            if not inventory.add_product(product):
                 raise ValueError("Duplicate product ID")
         print("Inventory loaded successfully.")
     except (OSError, json.JSONDecodeError, ValueError, TypeError) as error:
@@ -47,7 +54,7 @@ def read_nonnegative_number(prompt, number_type):
     while True:
         try:
             value = number_type(input(prompt))
-            if value < 0 or (number_type is float and value != value):
+            if value < 0 or (number_type is float and not __import__("math").isfinite(value)):
                 print("Value cannot be negative or NaN.")
                 continue
             return value
@@ -72,7 +79,18 @@ def add_product(inventory):
         print("Product name cannot be empty.")
     price = read_nonnegative_number("Price: ", float)
     stock = read_nonnegative_number("Stock Quantity: ", int)
-    inventory.add_product(Product(product_id, name, price, stock))
+    while True:
+        product_type = input("Product Type (1 = Physical, 2 = Digital): ").strip()
+        if product_type in ("1", "2"):
+            break
+        print("Please enter 1 or 2.")
+    if product_type == "1":
+        weight = read_nonnegative_number("Weight (kg): ", float)
+        product = PhysicalProduct(product_id, name, price, stock, weight)
+    else:
+        download_size = read_nonnegative_number("Download Size (MB): ", float)
+        product = DigitalProduct(product_id, name, price, stock, download_size)
+    inventory.add_product(product)
     print("Product added successfully!")
 
 
