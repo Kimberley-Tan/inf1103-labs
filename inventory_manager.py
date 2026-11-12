@@ -3,6 +3,7 @@ from pathlib import Path
 from physical_product import PhysicalProduct
 from digital_product import DigitalProduct
 from inventory import Inventory
+from supplier import Supplier
 
 FILE_PATH = Path(__file__).with_name("inventory.json")
 
@@ -23,10 +24,12 @@ def load_inventory():
                 raise ValueError("Invalid inventory format")
             if isinstance(item["stock"], bool) or not isinstance(item["stock"], int):
                 raise ValueError("Stock must be an integer")
+            supplier_data = item.get("supplier") or {"id": "UNKNOWN", "name": "Unknown Supplier", "email": "unknown@example.com"}
+            supplier = Supplier(supplier_data["id"], supplier_data["name"], supplier_data["email"])
             if item.get("type") == "physical":
-                product = PhysicalProduct(item["id"], item["name"], item["price"], item["stock"], item["weight"])
+                product = PhysicalProduct(item["id"], item["name"], item["price"], item["stock"], item["weight"], supplier)
             elif item.get("type") == "digital":
-                product = DigitalProduct(item["id"], item["name"], item["price"], item["stock"], item["download_size"])
+                product = DigitalProduct(item["id"], item["name"], item["price"], item["stock"], item["download_size"], supplier)
             else:
                 raise ValueError("Missing or unknown product type; each record must be physical or digital")
             if not inventory.add_product(product):
@@ -84,12 +87,13 @@ def add_product(inventory):
         if product_type in ("1", "2"):
             break
         print("Please enter 1 or 2.")
+    supplier = Supplier(input("Supplier ID: ").strip(), input("Supplier Name: ").strip(), input("Supplier Email: ").strip())
     if product_type == "1":
         weight = read_nonnegative_number("Weight (kg): ", float)
-        product = PhysicalProduct(product_id, name, price, stock, weight)
+        product = PhysicalProduct(product_id, name, price, stock, weight, supplier)
     else:
         download_size = read_nonnegative_number("Download Size (MB): ", float)
-        product = DigitalProduct(product_id, name, price, stock, download_size)
+        product = DigitalProduct(product_id, name, price, stock, download_size, supplier)
     inventory.add_product(product)
     print("Product added successfully!")
 

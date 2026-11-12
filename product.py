@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 import math
+from supplier import Supplier
 
 
 class Product(ABC):
-    def __init__(self, product_id, name, price, stock):
+    def __init__(self, product_id: str, name: str, price: float, stock: int, supplier: Supplier):
         if not str(product_id).strip() or not str(name).strip():
             raise ValueError("Product ID and name cannot be empty.")
         if not math.isfinite(float(price)) or float(price) < 0:
@@ -14,28 +15,33 @@ class Product(ABC):
         self.__name = str(name).strip()
         self.__price = float(price)
         self.__stock = stock
+        self.supplier: Supplier = supplier
 
-    def get_product_id(self):
+    @property
+    def price(self) -> float:
+        return self.__price
+
+    def get_product_id(self) -> str:
         return self.__product_id
 
-    def get_name(self):
+    def get_name(self) -> str:
         return self.__name
 
-    def get_stock(self):
+    def get_stock(self) -> int:
         return self.__stock
 
-    def update_stock(self, quantity):
+    def update_stock(self, quantity: int) -> None:
         if isinstance(quantity, bool) or not isinstance(quantity, int) or quantity < 0:
             raise ValueError("Stock must be a non-negative integer.")
         self.__stock = quantity
 
-    def display_information(self):
+    def display_information(self) -> None:
         print(f"ID: {self.__product_id} | Name: {self.__name} | Price: ${self.__price:.2f} | Stock: {self.__stock}")
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {"id": self.__product_id, "name": self.__name,
-                "price": self.__price, "stock": self.__stock}
+                "price": self.__price, "stock": self.__stock, "supplier": {"id": self.supplier.supplier_id, "name": self.supplier.name, "email": self.supplier.contact_email}}
 
     @abstractmethod
-    def get_fulfilment_info(self):
+    def get_fulfilment_info(self) -> str:
         pass

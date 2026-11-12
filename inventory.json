@@ -38,5 +38,13 @@
         "stock": 1,
         "type": "physical",
         "weight": 0.2
+    },
+    {
+        "id": "P006",
+        "name": "Macbook",
+        "price": 3000.0,
+        "stock": 1,
+        "type": "physical",
+        "weight": 1.2
     }
 ]
