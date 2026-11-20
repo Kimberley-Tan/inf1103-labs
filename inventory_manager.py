@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
-from physical_product import PhysicalProduct
-from digital_product import DigitalProduct
+from product_factory import ProductFactory
+from csv_loader import load_products, get_positive_float
 from inventory import Inventory
 from supplier import Supplier
 
@@ -26,12 +26,12 @@ def load_inventory():
                 raise ValueError("Stock must be an integer")
             supplier_data = item.get("supplier") or {"id": "UNKNOWN", "name": "Unknown Supplier", "email": "unknown@example.com"}
             supplier = Supplier(supplier_data["id"], supplier_data["name"], supplier_data["email"])
-            if item.get("type") == "physical":
-                product = PhysicalProduct(item["id"], item["name"], item["price"], item["stock"], item["weight"], supplier)
-            elif item.get("type") == "digital":
-                product = DigitalProduct(item["id"], item["name"], item["price"], item["stock"], item["download_size"], supplier)
-            else:
-                raise ValueError("Missing or unknown product type; each record must be physical or digital")
+            product_type = item.get("type")
+            product = ProductFactory.create(
+                product_type, item["id"], item["name"], item["price"],
+                item["stock"], supplier, weight=item.get("weight", 0.0),
+                download_size=item.get("download_size", 0.0)
+            )
             if not inventory.add_product(product):
                 raise ValueError("Duplicate product ID")
         print("Inventory loaded successfully.")
@@ -80,7 +80,7 @@ def add_product(inventory):
         if name:
             break
         print("Product name cannot be empty.")
-    price = read_nonnegative_number("Price: ", float)
+    price = get_positive_float("Price: ")
     stock = read_nonnegative_number("Stock Quantity: ", int)
     while True:
         product_type = input("Product Type (1 = Physical, 2 = Digital): ").strip()
@@ -90,10 +90,10 @@ def add_product(inventory):
     supplier = Supplier(input("Supplier ID: ").strip(), input("Supplier Name: ").strip(), input("Supplier Email: ").strip())
     if product_type == "1":
         weight = read_nonnegative_number("Weight (kg): ", float)
-        product = PhysicalProduct(product_id, name, price, stock, weight, supplier)
+        product = ProductFactory.create("physical", product_id, name, price, stock, supplier, weight=weight)
     else:
         download_size = read_nonnegative_number("Download Size (MB): ", float)
-        product = DigitalProduct(product_id, name, price, stock, download_size, supplier)
+        product = ProductFactory.create("digital", product_id, name, price, stock, supplier, download_size=download_size)
     inventory.add_product(product)
     print("Product added successfully!")
 
@@ -125,7 +125,7 @@ def main():
     inventory = load_inventory()
     while True:
         print("\n----------- MENU -----------")
-        print("1. Display All Products\n2. Add Product\n3. Update Stock\n4. Search Product\n5. Save Inventory\n6. Exit")
+        print("1. Display All Products\n2. Add Product\n3. Update Stock\n4. Search Product\n5. Save Inventory\n6. Exit\n7. Load Products from CSV")
         print("----------------------------")
         choice = input("Enter option: ").strip()
         if choice == "1":
@@ -145,8 +145,11 @@ def main():
                 print("Thank you for using Inventory Management System.\nProgram terminated.")
                 break
             print("Save failed. Please resolve the error before exiting.")
+        elif choice == "7":
+            supplier = Supplier("CSV", "CSV Supplier", "csv@example.com")
+            load_products(input("CSV file path [products.csv]: ").strip() or "products.csv", inventory, supplier)
         else:
-            print("Invalid option. Please choose 1 to 6.")
+            print("Invalid option. Please choose 1 to 7.")
 
 
 if __name__ == "__main__":

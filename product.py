@@ -7,8 +7,8 @@ class Product(ABC):
     def __init__(self, product_id: str, name: str, price: float, stock: int, supplier: Supplier):
         if not str(product_id).strip() or not str(name).strip():
             raise ValueError("Product ID and name cannot be empty.")
-        if not math.isfinite(float(price)) or float(price) < 0:
-            raise ValueError("Price must be a non-negative finite number.")
+        if not math.isfinite(float(price)) or float(price) <= 0:
+            raise ValueError("Price must be a positive finite number.")
         if isinstance(stock, bool) or not isinstance(stock, int) or stock < 0:
             raise ValueError("Stock must be a non-negative integer.")
         self.__product_id = str(product_id).strip().upper()
